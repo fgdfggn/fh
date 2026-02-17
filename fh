@@ -1,0 +1,200 @@
+-- ============================================
+-- 缝合脚本
+-- 作者: 肖安
+-- QQ: 3655017972
+-- ============================================
+
+-- 检查游戏是否加载完成
+if not game:IsLoaded() then
+    game.Loaded:Wait()
+end
+
+if not game:GetService("RunService"):IsClient() then
+    return
+end
+
+-- 创建高级加载动画
+local function createAdvancedLoadingAnimation()
+    local screenGui = Instance.new("ScreenGui")
+    screenGui.Parent = game:GetService("CoreGui")
+    screenGui.Name = "AdvancedLoadingUI"
+    screenGui.Enabled = true
+    screenGui.ResetOnSpawn = false
+    screenGui.IgnoreGuiInset = true
+    screenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+
+    -- 工业风格背景
+    local background = Instance.new("Frame")
+    background.Name = "Background"
+    background.Size = UDim2.new(1, 0, 1, 0)
+    background.Position = UDim2.new(0, 0, 0, 0)
+    background.BackgroundColor3 = Color3.fromRGB(15, 20, 30)
+    background.BackgroundTransparency = 0
+    
+    local gradient = Instance.new("UIGradient")
+    gradient.Color = ColorSequence.new{
+        ColorSequenceKeypoint.new(0, Color3.fromRGB(20, 25, 40)),
+        ColorSequenceKeypoint.new(0.5, Color3.fromRGB(30, 40, 60)),
+        ColorSequenceKeypoint.new(1, Color3.fromRGB(20, 25, 40))
+    }
+    gradient.Rotation = 45
+    gradient.Parent = background
+    
+    background.Parent = screenGui
+
+    -- 网格背景
+    for i = 1, 20 do
+        for j = 1, 20 do
+            if (i + j) % 2 == 0 then
+                local grid = Instance.new("Frame")
+                grid.Name = "Grid"..i.."_"..j
+                grid.Size = UDim2.new(0.05, 0, 0.05, 0)
+                grid.Position = UDim2.new((i-1)*0.05, 0, (j-1)*0.05, 0)
+                grid.BackgroundColor3 = Color3.fromRGB(30, 40, 60)
+                grid.BackgroundTransparency = 0.9
+                grid.BorderSizePixel = 0
+                grid.Parent = background
+            end
+        end
+    end
+
+    -- 中心蓝色发光圆环
+    local glowRing = Instance.new("ImageLabel")
+    glowRing.Name = "GlowRing"
+    glowRing.Size = UDim2.new(0, 350, 0, 350)
+    glowRing.AnchorPoint = Vector2.new(0.5, 0.5)
+    glowRing.Position = UDim2.new(0.5, 0, 0.4, 0)
+    glowRing.Image = "rbxassetid://3570695787"
+    glowRing.ImageTransparency = 0.6
+    glowRing.BackgroundTransparency = 1
+    glowRing.ImageColor3 = Color3.fromRGB(0, 120, 255)
+    glowRing.Parent = background
+
+    -- 齿轮图标
+    local gear = Instance.new("ImageLabel")
+    gear.Name = "Gear"
+    gear.Size = UDim2.new(0, 140, 0, 140)
+    gear.AnchorPoint = Vector2.new(0.5, 0.5)
+    gear.Position = UDim2.new(0.5, 0, 0.4, 0)
+    gear.Image = "rbxassetid://6031075928"
+    gear.BackgroundTransparency = 1
+    gear.ImageColor3 = Color3.fromRGB(0, 150, 255)
+    gear.Parent = background
+
+    -- 小齿轮1
+    local smallGear1 = Instance.new("ImageLabel")
+    smallGear1.Name = "SmallGear1"
+    smallGear1.Size = UDim2.new(0, 60, 0, 60)
+    smallGear1.AnchorPoint = Vector2.new(0.5, 0.5)
+    smallGear1.Position = UDim2.new(0.5, 100, 0.4, 100)
+    smallGear1.Image = "rbxassetid://6031075928"
+    smallGear1.BackgroundTransparency = 1
+    smallGear1.ImageColor3 = Color3.fromRGB(0, 180, 255)
+    smallGear1.Parent = background
+
+    -- 小齿轮2
+    local smallGear2 = Instance.new("ImageLabel")
+    smallGear2.Name = "SmallGear2"
+    smallGear2.Size = UDim2.new(0, 60, 0, 60)
+    smallGear2.AnchorPoint = Vector2.new(0.5, 0.5)
+    smallGear2.Position = UDim2.new(0.5, -100, 0.4, -100)
+    smallGear2.Image = "rbxassetid://6031075928"
+    smallGear2.BackgroundTransparency = 1
+    smallGear2.ImageColor3 = Color3.fromRGB(0, 180, 255)
+    smallGear2.Parent = background
+
+    -- 外圈机械圆环
+    local outerRing = Instance.new("Frame")
+    outerRing.Name = "OuterRing"
+    outerRing.Size = UDim2.new(0, 320, 0, 320)
+    outerRing.AnchorPoint = Vector2.new(0.5, 0.5)
+    outerRing.Position = UDim2.new(0.5, 0, 0.4, 0)
+    outerRing.BackgroundTransparency = 1
+    outerRing.Parent = background
+
+    for i = 1, 24 do
+        local bolt = Instance.new("Frame")
+        bolt.Name = "Bolt"..i
+        bolt.Size = UDim2.new(0, 6, 0, 6)
+        bolt.AnchorPoint = Vector2.new(0.5, 0.5)
+        bolt.Position = UDim2.new(0.5, 0, 0.5, 0)
+        bolt.BackgroundColor3 = Color3.fromRGB(0, 200, 255)
+        bolt.BackgroundTransparency = 0.3
+        bolt.Rotation = (i - 1) * 15
+        
+        local boltCorner = Instance.new("UICorner")
+        boltCorner.CornerRadius = UDim.new(0, 2)
+        boltCorner.Parent = bolt
+        
+        local boltConstraint = Instance.new("UIAspectRatioConstraint")
+        boltConstraint.AspectRatio = 1
+        boltConstraint.Parent = bolt
+        
+        -- 计算圆周位置
+        local angle = math.rad((i - 1) * 15)
+        local radius = 140
+        bolt.Position = UDim2.new(0.5, math.cos(angle) * radius, 0.5, math.sin(angle) * radius)
+        
+        bolt.Parent = outerRing
+    end
+
+    -- 工业风格标题
+    local title = Instance.new("TextLabel")
+    title.Name = "Title"
+    title.Size = UDim2.new(0, 400, 0, 60)
+    title.AnchorPoint = Vector2.new(0.5, 0.5)
+    title.Position = UDim2.new(0.5, 0, 0.6, 0)
+    title.BackgroundTransparency = 1
+    title.Text = "机 械 缝 合"
+    title.TextColor3 = Color3.fromRGB(220, 240, 255)
+    title.TextSize = 48
+    title.Font = Enum.Font.SourceSansBold
+    title.TextStrokeColor3 = Color3.fromRGB(0, 100, 200)
+    title.TextStrokeTransparency = 0.2
+    title.Parent = background
+
+    -- 副标题
+    local subtitle = Instance.new("TextLabel")
+    subtitle.Name = "Subtitle"
+    subtitle.Size = UDim2.new(0, 300, 0, 30)
+    subtitle.AnchorPoint = Vector2.new(0.5, 0.5)
+    subtitle.Position = UDim2.new(0.5, 0, 0.68, 0)
+    subtitle.BackgroundTransparency = 1
+    subtitle.Text = "系统预热中..."
+    subtitle.TextColor3 = Color3.fromRGB(180, 220, 255)
+    subtitle.TextSize = 20
+    subtitle.Font = Enum.Font.SourceSans
+    subtitle.Parent = background
+
+    -- 工业进度条容器
+    local progressContainer = Instance.new("Frame")
+    progressContainer.Name = "ProgressContainer"
+    progressContainer.Size = UDim2.new(0, 400, 0, 50)
+    progressContainer.AnchorPoint = Vector2.new(0.5, 0.5)
+    progressContainer.Position = UDim2.new(0.5, 0, 0.78, 0)
+    progressContainer.BackgroundTransparency = 1
+    progressContainer.Parent = background
+
+    -- 进度条背景（机械风格）
+    local progressBg = Instance.new("Frame")
+    progressBg.Name = "ProgressBackground"
+    progressBg.Size = UDim2.new(1, 0, 0, 12)
+    progressBg.Position = UDim2.new(0, 0, 0.5, -6)
+    progressBg.BackgroundColor3 = Color3.fromRGB(40, 50, 70)
+    progressBg.BorderSizePixel = 0
+    progressBg.Parent = progressContainer
+
+    local bgCorner = Instance.new("UICorner")
+    bgCorner.CornerRadius = UDim.new(0, 6)
+    bgCorner.Parent = progressBg
+
+    -- 进度条前景
+    local progressBar = Instance.new("Frame")
+    progressBar.Name = "ProgressBar"
+    progressBar.Size = UDim2.new(0, 0, 1, 0)
+    progressBar.BackgroundColor3 = Color3.fromRGB(0, 150, 255)
+    progressBar.BorderSizePixel = 0
+    progressBar.Parent = progressBg
+
+    local barCorner = Instance.new("UICorner")
+    barCorner.CornerRadius = UDim.new(
